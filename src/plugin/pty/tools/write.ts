@@ -3,6 +3,28 @@ import { manager } from "../manager.ts";
 import { checkCommandPermission } from "../permissions.ts";
 import DESCRIPTION from "./write.txt";
 
+/**
+ * Parse escape sequences in a string to their actual byte values.
+ * Handles: \n, \r, \t, \xNN (hex), \uNNNN (unicode), \\
+ */
+function parseEscapeSequences(input: string): string {
+  return input.replace(/\\(x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4}|[nrt\\])/g, (match, seq: string) => {
+    if (seq.startsWith("x")) {
+      return String.fromCharCode(parseInt(seq.slice(1), 16));
+    }
+    if (seq.startsWith("u")) {
+      return String.fromCharCode(parseInt(seq.slice(1), 16));
+    }
+    switch (seq) {
+      case "n": return "\n";
+      case "r": return "\r";
+      case "t": return "\t";
+      case "\\": return "\\";
+      default: return match;
+    }
+  });
+}
+
 function extractCommands(data: string): string[] {
   const commands: string[] = [];
   const lines = data.split(/[\n\r]+/);
@@ -38,7 +60,10 @@ export const ptyWrite = tool({
       throw new Error(`Cannot write to PTY '${args.id}' - session status is '${session.status}'.`);
     }
 
-    const commands = extractCommands(args.data);
+    // Parse escape sequences to actual bytes
+    const parsedData = parseEscapeSequences(args.data);
+
+    const commands = extractCommands(parsedData);
     for (const commandLine of commands) {
       const { command, args: cmdArgs } = parseCommand(commandLine);
       if (command) {
@@ -46,7 +71,7 @@ export const ptyWrite = tool({
       }
     }
 
-    const success = manager.write(args.id, args.data);
+    const success = manager.write(args.id, parsedData);
     if (!success) {
       throw new Error(`Failed to write to PTY '${args.id}'.`);
     }
