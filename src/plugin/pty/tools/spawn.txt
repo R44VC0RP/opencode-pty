@@ -13,6 +13,13 @@ Usage:
 - Use `env` to set additional environment variables
 - Use `title` to give the session a human-readable name
 - The `description` parameter is required: a clear, concise 5-10 word description
+- Use `shell` to control shell wrapping (default: true)
+
+Shell Wrapping (default: enabled):
+- Commands are wrapped in a shell so the PTY stays alive after the command exits
+- This allows you to Ctrl+C a process and then run another command
+- Set `shell=false` to run the command directly (PTY exits when command exits)
+- Shell commands (bash, zsh, sh, etc.) are never wrapped
 
 Returns the session info including:
 - `id`: Unique identifier (pty_XXXXXXXX) for use with other pty_* tools

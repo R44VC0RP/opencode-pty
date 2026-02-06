@@ -1,0 +1,24 @@
+Start or stop the PTY web server for browser-based terminal access.
+
+The web server provides:
+- A dashboard to view all active PTY sessions
+- Real-time terminal streaming via WebSocket
+- Interactive input to any session from the browser
+
+Usage:
+- action="start": Start the web server (default port 7681)
+- action="stop": Stop the web server
+- action="status": Check if server is running
+
+After starting, open http://localhost:{port} in a browser to access the dashboard.
+
+Examples:
+- Start server: action="start"
+- Start on custom port: action="start", port=8080
+- Stop server: action="stop"
+- Check status: action="status"
+
+Tips:
+- The server binds to localhost only for security
+- Multiple browser tabs can view the same session
+- Sessions continue running even if you close the browser

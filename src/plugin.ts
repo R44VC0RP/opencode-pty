@@ -7,6 +7,7 @@ import { ptyWrite } from "./plugin/pty/tools/write.ts";
 import { ptyRead } from "./plugin/pty/tools/read.ts";
 import { ptyList } from "./plugin/pty/tools/list.ts";
 import { ptyKill } from "./plugin/pty/tools/kill.ts";
+import { ptyWeb } from "./plugin/pty/tools/web.ts";
 
 const log = createLogger("plugin");
 
@@ -24,6 +25,7 @@ export const PTYPlugin = async (
       pty_read: ptyRead,
       pty_list: ptyList,
       pty_kill: ptyKill,
+      pty_web: ptyWeb,
     },
     event: async ({ event }) => {
       if (!event) {

@@ -1,5 +1,6 @@
 import { spawn, type IPty } from "bun-pty";
 import { RingBuffer } from "./buffer.ts";
+import { emitter } from "./emitter.ts";
 import type { PTYSession, PTYSessionInfo, SpawnOptions, ReadResult, SearchResult } from "./types.ts";
 import { createLogger } from "../logger.ts";
 
@@ -52,6 +53,7 @@ class PTYManager {
 
     ptyProcess.onData((data: string) => {
       buffer.append(data);
+      emitter.emitOutput(id, data);
     });
 
     ptyProcess.onExit(({ exitCode }: { exitCode: number }) => {
@@ -59,6 +61,7 @@ class PTYManager {
       if (session.status === "running") {
         session.status = "exited";
         session.exitCode = exitCode;
+        emitter.emitState(id, "exited", exitCode);
       }
     });
 
@@ -125,10 +128,12 @@ class PTYManager {
         session.process.kill();
       } catch {}
       session.status = "killed";
+      emitter.emitState(id, "killed");
     }
 
     if (cleanup) {
       session.buffer.clear();
+      emitter.cleanup(id);
       this.sessions.delete(id);
     }
 
